@@ -1,0 +1,92 @@
+package ru.ilug.puml_generator;
+
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.resolution.SymbolResolver;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.MemoryTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+import ru.ilug.puml_generator.config.Config;
+import ru.ilug.puml_generator.controller.PumlGenerateController;
+import ru.ilug.puml_generator.controller.PumlGenerator;
+import ru.ilug.puml_generator.file_system.FileSystemJavaSrcLoader;
+import ru.ilug.puml_generator.file_system.FileSystemOutputSaver;
+import ru.ilug.puml_generator.generator.JavaUnitParser;
+import ru.ilug.puml_generator.generator.PumlGeneratorImpl;
+import ru.ilug.puml_generator.parser.JavaUnitParserImpl;
+import ru.ilug.puml_generator.parser.printer.UnitPrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.*;
+import ru.ilug.puml_generator.parser.printer.clazz.body.ClassBodyPrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldNamePrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldTypePrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldVisibilityPrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodArgumentsPrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodNamePrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodTypePrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodVisibilityPrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.ParameterNamePrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.ParameterTypePrinter;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        JsonMapper jsonMapper = new JsonMapper();
+        Config config = jsonMapper.readValue(Path.of("./config.json").toFile(), Config.class);
+
+        setupStaticJavaParser(config);
+
+        FileSystemJavaSrcLoader loader = new FileSystemJavaSrcLoader(config.srcPath());
+        FileSystemOutputSaver saver = new FileSystemOutputSaver(config.outputFile());
+
+        UnitPrinter printer = createUnitPrinter(config);
+        JavaUnitParser parser = new JavaUnitParserImpl(printer);
+        PumlGenerator pumlGenerator = new PumlGeneratorImpl(parser);
+
+        PumlGenerateController generateController = new PumlGenerateController(pumlGenerator, loader, saver);
+
+        generateController.generate();
+    }
+
+    private static void setupStaticJavaParser(Config config) {
+        CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
+        combinedSolver.add(new JavaParserTypeSolver(config.srcPath()));
+        combinedSolver.add(new ReflectionTypeSolver());
+
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
+
+        StaticJavaParser.getParserConfiguration()
+                .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21)
+                .setSymbolResolver(symbolSolver);
+    }
+
+    private static UnitPrinter createUnitPrinter(Config config) {
+        return new UnitPrinter(List.of(
+                new ClassTypePrinter(),
+                new ClassNamePrinter(),
+                new ClassGenericsPrinter(),
+                new ClassBodyPrinter(List.of(
+                        new FieldVisibilityPrinter(),
+                        new FieldTypePrinter(),
+                        new FieldNamePrinter()
+                ), List.of(
+                        new MethodVisibilityPrinter(),
+                        new MethodTypePrinter(),
+                        new MethodNamePrinter(),
+                        new MethodArgumentsPrinter(List.of(
+                                new ParameterTypePrinter(),
+                                new ParameterNamePrinter()
+                        ))
+                )),
+                new ClassDependenciesPrinter(config.packages()),
+                new ClassRelationsPrinter(config.packages())
+        ), config.packages());
+    }
+
+}
