@@ -18,7 +18,7 @@ public class ClassTypePrinter implements Printer {
         TypeDeclaration<?> typeDeclaration = properties.get(TypeDeclaration.class);
 
         if (typeDeclaration.isRecordDeclaration()) {
-            return "record";
+            return "class"; // TODO: support records
         }
 
         if (typeDeclaration.isClassOrInterfaceDeclaration() && typeDeclaration.asClassOrInterfaceDeclaration().isInterface()) {
