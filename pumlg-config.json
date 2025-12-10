@@ -1,6 +1,6 @@
 {
   "srcPath": "./src/main/java/",
-  "outputFile": "./test.puml",
+  "outputFile": "./classes.puml",
   "packages": {
     "include": ["ru.ilug"],
     "exclude": ["ru.ilug.puml_generator.Main", "ru.ilug.puml_generator.config"]

@@ -13,7 +13,7 @@ public class PumlGeneratorImpl implements PumlGenerator {
 
     @Override
     public String generate(List<CompilationUnit> units) {
-        StringBuilder builder = new StringBuilder("skinparam linetype ortho\n!pragma useIntermediatePackages false\n");
+        StringBuilder builder = new StringBuilder("skinparam linetype ortho\n!pragma useIntermediatePackages false\n!theme mars\n");
 
         for(CompilationUnit unit : units) {
             String parsedUnit = parser.parse(unit);
