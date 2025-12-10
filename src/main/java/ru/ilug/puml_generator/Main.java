@@ -19,12 +19,10 @@ import ru.ilug.puml_generator.parser.printer.UnitPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.*;
 import ru.ilug.puml_generator.parser.printer.clazz.body.ClassBodyPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldNamePrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldStaticModifierPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldTypePrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldVisibilityPrinter;
-import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodArgumentsPrinter;
-import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodNamePrinter;
-import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodTypePrinter;
-import ru.ilug.puml_generator.parser.printer.clazz.body.method.MethodVisibilityPrinter;
+import ru.ilug.puml_generator.parser.printer.clazz.body.method.*;
 import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.ParameterNamePrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.ParameterTypePrinter;
 
@@ -90,10 +88,12 @@ public class Main {
                 new ClassGenericsPrinter(),
                 new ClassBodyPrinter(List.of(
                         new FieldVisibilityPrinter(),
+                        new FieldStaticModifierPrinter(),
                         new FieldTypePrinter(),
                         new FieldNamePrinter()
                 ), List.of(
                         new MethodVisibilityPrinter(),
+                        new MethodModifierPrinter(),
                         new MethodTypePrinter(),
                         new MethodNamePrinter(),
                         new MethodArgumentsPrinter(List.of(
