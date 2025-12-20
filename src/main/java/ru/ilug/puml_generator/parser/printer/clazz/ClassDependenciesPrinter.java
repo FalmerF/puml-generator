@@ -12,6 +12,8 @@ import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
 import ru.ilug.puml_generator.util.JavaTypesUtil;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 public class ClassDependenciesPrinter implements Printer {
 
@@ -37,7 +39,7 @@ public class ClassDependenciesPrinter implements Printer {
         ClassOrInterfaceDeclaration declaration = typeDeclaration.asClassOrInterfaceDeclaration();
 
         filterAndAppendRelations(declaration.getExtendedTypes(), unit, builder, typeName, " <|-- ");
-        filterAndAppendRelations(declaration.getImplementedTypes(), unit, builder, typeName, " <|-- ");
+        filterAndAppendRelations(declaration.getImplementedTypes(), unit, builder, typeName, " <|.. ");
 
         return builder.isEmpty() ? null : builder.toString();
     }
@@ -46,6 +48,7 @@ public class ClassDependenciesPrinter implements Printer {
                                           StringBuilder builder, String typeName, String arrow) {
         nodeList.stream()
                 .map(t -> JavaTypesUtil.getClassOrInterfaceTypeName(unit, t))
+                .filter(Objects::nonNull)
                 .filter(n -> JavaTypesUtil.filterPackage(n, packagesConfig))
                 .forEach(name -> builder.append("\n").append(name).append(arrow).append(typeName));
     }
