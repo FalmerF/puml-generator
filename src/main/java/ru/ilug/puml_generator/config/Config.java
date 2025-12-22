@@ -18,7 +18,6 @@ public final class Config {
     private boolean subClasses = true; // TODO: Requires implementation
     private boolean generics = true;
 
-    // TODO: Everything below requires implementation
     private boolean fields = true;
     private boolean fieldVisibility = true;
     private boolean fieldType = true;
@@ -26,8 +25,10 @@ public final class Config {
     private boolean publicFields = true;
     private boolean privateFields = true;
     private boolean protectedFields = true;
+    private boolean staticFields = true;
 
     private boolean methods = true;
+    // TODO: Everything below requires implementation
     private boolean methodVisibility = true;
     private boolean methodType = true;
     private boolean methodName = true;
@@ -37,5 +38,6 @@ public final class Config {
     private boolean publicMethods = true;
     private boolean privateMethods = true;
     private boolean protectedMethods = true;
+    private boolean staticMethods = true;
 
 }

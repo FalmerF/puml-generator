@@ -9,5 +9,16 @@
   "interfaces": true,
   "abstractClasses": true,
   "subClasses": true,
-  "generics": true
+  "generics": true,
+
+  "fields": true,
+  "fieldVisibility": true,
+  "fieldType": true,
+  "fieldName": true,
+  "publicFields": true,
+  "privateFields": true,
+  "protectedFields": true,
+  "staticFields": true,
+
+  "methods": true
 }

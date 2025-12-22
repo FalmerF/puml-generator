@@ -1,6 +1,7 @@
 package ru.ilug.puml_generator.parser.printer.clazz.body;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.*;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -12,6 +13,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClassBodyPrinter implements Printer {
 
+    private final boolean fieldsEnable, publicFields, privateFields, protectedFields, staticFields;
+    private final boolean methodsEnable;
     private final List<Printer> fieldsPrinters;
     private final List<Printer> methodsPrinters;
 
@@ -27,13 +30,17 @@ public class ClassBodyPrinter implements Printer {
 
         StringBuilder builder = new StringBuilder("{");
 
-        printFields(unit, typeDeclaration, builder);
-
-        if (builder.length() > 1) {
-            builder.append("\n");
+        if (fieldsEnable) {
+            printFields(unit, typeDeclaration, builder);
         }
 
-        printMethods(unit, typeDeclaration, builder);
+        if (methodsEnable) {
+            if (builder.length() > 1) {
+                builder.append("\n");
+            }
+
+            printMethods(unit, typeDeclaration, builder);
+        }
 
         return builder.append("\n}").toString();
     }
@@ -45,6 +52,10 @@ public class ClassBodyPrinter implements Printer {
             }
 
             FieldDeclaration fieldDeclaration = declaration.asFieldDeclaration();
+
+            if (fieldDeclaration.getModifiers().stream().anyMatch(this::isFieldModifierDisallowed)) {
+                continue;
+            }
 
             for (VariableDeclarator variableDeclarator : fieldDeclaration.getVariables()) {
                 builder.append("\n    {field} ");
@@ -80,5 +91,15 @@ public class ClassBodyPrinter implements Printer {
                 }
             }
         }
+    }
+
+    private boolean isFieldModifierDisallowed(Modifier modifier) {
+        Modifier.Keyword keyword = modifier.getKeyword();
+
+        return (keyword == Modifier.Keyword.PUBLIC && !publicFields)
+                || (keyword == Modifier.Keyword.PRIVATE && !privateFields)
+                || (keyword == Modifier.Keyword.PROTECTED && !protectedFields)
+                || (keyword == Modifier.Keyword.STATIC && !staticFields);
+
     }
 }

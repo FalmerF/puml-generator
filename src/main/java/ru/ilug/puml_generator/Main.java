@@ -106,29 +106,52 @@ public class Main {
             printers.add(new ClassGenericsPrinter());
         }
 
-        printers.add(createClassBodyPrinter());
+        printers.add(createClassBodyPrinter(config));
         printers.add(new ClassDependenciesPrinter(classFilter));
         printers.add(new ClassRelationsPrinter(classFilter));
 
         return new UnitPrinter(classFilter, printers);
     }
 
-    private static ClassBodyPrinter createClassBodyPrinter() {
-        return new ClassBodyPrinter(List.of(
-                new FieldVisibilityPrinter(),
-                new FieldStaticModifierPrinter(),
-                new FieldTypePrinter(),
-                new FieldNamePrinter()
-        ), List.of(
-                new MethodVisibilityPrinter(),
-                new MethodModifierPrinter(),
-                new MethodTypePrinter(),
-                new MethodNamePrinter(),
-                new MethodArgumentsPrinter(List.of(
-                        new ParameterTypePrinter(),
-                        new ParameterNamePrinter()
-                ))
-        ));
+    private static ClassBodyPrinter createClassBodyPrinter(Config config) {
+        return new ClassBodyPrinter(
+                config.isFields(), config.isPublicFields(), config.isPrivateFields(), config.isProtectedFields(), config.isStaticFields(),
+                config.isMethods(),
+                createFieldPrinters(config), createMethodPrinters(config)
+        );
+    }
+
+    private static List<Printer> createFieldPrinters(Config config) {
+        List<Printer> printers = new ArrayList<>();
+
+        if (config.isFieldVisibility()) {
+            printers.add(new FieldVisibilityPrinter());
+        }
+
+        printers.add(new FieldStaticModifierPrinter());
+
+        if (config.isFieldType()) {
+            printers.add(new FieldTypePrinter());
+        }
+
+        if (config.isFieldName()) {
+            printers.add(new FieldNamePrinter());
+        }
+
+        return printers;
+    }
+
+    private static List<Printer> createMethodPrinters(Config config) {
+        List<Printer> printers = new ArrayList<>();
+        printers.add(new MethodVisibilityPrinter());
+        printers.add(new MethodModifierPrinter());
+        printers.add(new MethodTypePrinter());
+        printers.add(new MethodNamePrinter());
+        printers.add(new MethodArgumentsPrinter(List.of(
+                new ParameterTypePrinter(),
+                new ParameterNamePrinter()
+        )));
+        return printers;
     }
 
 }
