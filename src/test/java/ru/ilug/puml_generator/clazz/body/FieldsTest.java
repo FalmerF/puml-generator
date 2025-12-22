@@ -10,6 +10,10 @@ public class FieldsTest {
     private String privateString;
     private float[] privateFloatArray;
 
+    protected int protectedInt;
+    protected String protectedString;
+    protected float[] protectedFloatArray;
+
     int nonModifierInt;
     String nonModifierString;
     float[] nonModifierFloatArray;
