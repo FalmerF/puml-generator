@@ -6,5 +6,8 @@
     "include": [],
     "exclude": ["^java\\..+"]
   },
-  "interfaces": true
+  "interfaces": true,
+  "abstractClasses": true,
+  "subClasses": true,
+  "generics": true
 }

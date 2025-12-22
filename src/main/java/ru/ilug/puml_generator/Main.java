@@ -18,6 +18,7 @@ import ru.ilug.puml_generator.generator.JavaUnitParser;
 import ru.ilug.puml_generator.generator.PumlGeneratorImpl;
 import ru.ilug.puml_generator.parser.ClassFilter;
 import ru.ilug.puml_generator.parser.JavaUnitParserImpl;
+import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.UnitPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.*;
 import ru.ilug.puml_generator.parser.printer.clazz.body.ClassBodyPrinter;
@@ -32,6 +33,7 @@ import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.Paramet
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -96,27 +98,36 @@ public class Main {
                 config.isInterfaces(), config.isAbstractClasses(), config.isSubClasses()
         );
 
-        return new UnitPrinter(classFilter, List.of(
-                new ClassTypePrinter(),
-                new ClassNamePrinter(),
-                new ClassGenericsPrinter(),
-                new ClassBodyPrinter(List.of(
-                        new FieldVisibilityPrinter(),
-                        new FieldStaticModifierPrinter(),
-                        new FieldTypePrinter(),
-                        new FieldNamePrinter()
-                ), List.of(
-                        new MethodVisibilityPrinter(),
-                        new MethodModifierPrinter(),
-                        new MethodTypePrinter(),
-                        new MethodNamePrinter(),
-                        new MethodArgumentsPrinter(List.of(
-                                new ParameterTypePrinter(),
-                                new ParameterNamePrinter()
-                        ))
-                )),
-                new ClassDependenciesPrinter(classFilter),
-                new ClassRelationsPrinter(classFilter)
+        List<Printer> printers = new ArrayList<>();
+        printers.add(new ClassTypePrinter());
+        printers.add(new ClassNamePrinter());
+
+        if (config.isGenerics()) {
+            printers.add(new ClassGenericsPrinter());
+        }
+
+        printers.add(createClassBodyPrinter());
+        printers.add(new ClassDependenciesPrinter(classFilter));
+        printers.add(new ClassRelationsPrinter(classFilter));
+
+        return new UnitPrinter(classFilter, printers);
+    }
+
+    private static ClassBodyPrinter createClassBodyPrinter() {
+        return new ClassBodyPrinter(List.of(
+                new FieldVisibilityPrinter(),
+                new FieldStaticModifierPrinter(),
+                new FieldTypePrinter(),
+                new FieldNamePrinter()
+        ), List.of(
+                new MethodVisibilityPrinter(),
+                new MethodModifierPrinter(),
+                new MethodTypePrinter(),
+                new MethodNamePrinter(),
+                new MethodArgumentsPrinter(List.of(
+                        new ParameterTypePrinter(),
+                        new ParameterNamePrinter()
+                ))
         ));
     }
 

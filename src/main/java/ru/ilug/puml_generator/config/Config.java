@@ -15,11 +15,10 @@ public final class Config {
 
     private boolean interfaces = true;
     private boolean abstractClasses = true;
-    private boolean subClasses = true;
-
-    // TODO: Everything below requires implementation
+    private boolean subClasses = true; // TODO: Requires implementation
     private boolean generics = true;
 
+    // TODO: Everything below requires implementation
     private boolean fields = true;
     private boolean fieldVisibility = true;
     private boolean fieldType = true;
