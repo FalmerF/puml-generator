@@ -28,6 +28,6 @@ public class FieldVisibilityPrinter implements Printer {
             }
         }
 
-        return "-";
+        return null;
     }
 }

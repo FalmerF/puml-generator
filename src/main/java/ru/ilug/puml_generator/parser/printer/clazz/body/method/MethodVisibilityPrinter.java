@@ -29,6 +29,6 @@ public class MethodVisibilityPrinter implements Printer {
             }
         }
 
-        return "- ";
+        return null;
     }
 }
