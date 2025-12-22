@@ -1,4 +1,4 @@
-package ru.ilug.puml_generator.util;
+package ru.ilug.puml_generator.parser.printer.util;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.Expression;
@@ -7,7 +7,8 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.resolution.types.ResolvedType;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -16,16 +17,15 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class DependencyVisitor extends VoidVisitorAdapter<CompilationUnit> {
 
-    private final Set<String> dependencies;
+    private final Set<ResolvedReferenceType> dependencies;
 
     @Override
     public void visit(ClassOrInterfaceType classOrInterfaceType, CompilationUnit unit) {
-        if (classOrInterfaceType.isReferenceType()) {
-            String resolvedName = JavaTypesUtil.getClassOrInterfaceTypeName(unit, classOrInterfaceType);
-            if (resolvedName != null) {
-                dependencies.add(resolvedName);
-            }
+        ResolvedReferenceType referenceType = JavaTypesUtil.resolveReferenceType(classOrInterfaceType);
+        if (referenceType != null) {
+            dependencies.add(referenceType);
         }
+
         super.visit(classOrInterfaceType, unit);
     }
 
@@ -38,8 +38,9 @@ public class DependencyVisitor extends VoidVisitorAdapter<CompilationUnit> {
                 Expression scope = scopeOptional.get();
 
                 if (scope instanceof NameExpr || scope instanceof FieldAccessExpr) {
-                    ResolvedReferenceTypeDeclaration type = methodCallExpr.resolve().declaringType();
-                    dependencies.add(type.getQualifiedName());
+                    ResolvedType resolvedType = methodCallExpr.calculateResolvedType();
+                    ResolvedReferenceType resolvedReferenceType = resolvedType.asReferenceType();
+                    dependencies.add(resolvedReferenceType);
                 }
             }
         } catch (Exception ignore) {

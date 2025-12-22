@@ -5,15 +5,18 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import ru.ilug.puml_generator.config.Config;
+import ru.ilug.puml_generator.config.PackagesConfig;
 import ru.ilug.puml_generator.controller.PumlGenerateController;
 import ru.ilug.puml_generator.controller.PumlGenerator;
 import ru.ilug.puml_generator.file_system.FileSystemJavaSrcLoader;
 import ru.ilug.puml_generator.file_system.FileSystemOutputSaver;
 import ru.ilug.puml_generator.generator.JavaUnitParser;
 import ru.ilug.puml_generator.generator.PumlGeneratorImpl;
+import ru.ilug.puml_generator.parser.ClassFilter;
 import ru.ilug.puml_generator.parser.JavaUnitParserImpl;
 import ru.ilug.puml_generator.parser.printer.UnitPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.*;
@@ -69,9 +72,14 @@ public class Main {
         return config;
     }
 
-    private static void setupStaticJavaParser(Config config) {
+    private static void setupStaticJavaParser(Config config) throws IOException {
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
         combinedSolver.add(new JavaParserTypeSolver(config.getSrcPath()));
+
+        for (Path jarPath : config.getDependencies()) {
+            combinedSolver.add(new JarTypeSolver(jarPath));
+        }
+
         combinedSolver.add(new ReflectionTypeSolver());
 
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
@@ -82,7 +90,13 @@ public class Main {
     }
 
     private static UnitPrinter createUnitPrinter(Config config) {
-        return new UnitPrinter(List.of(
+        PackagesConfig packagesConfig = config.getPackages();
+        ClassFilter classFilter = new ClassFilter(
+                packagesConfig.include(), packagesConfig.exclude(),
+                config.isInterfaces(), config.isAbstractClasses(), config.isSubClasses()
+        );
+
+        return new UnitPrinter(classFilter, List.of(
                 new ClassTypePrinter(),
                 new ClassNamePrinter(),
                 new ClassGenericsPrinter(),
@@ -101,9 +115,9 @@ public class Main {
                                 new ParameterNamePrinter()
                         ))
                 )),
-                new ClassDependenciesPrinter(config.getPackages()),
-                new ClassRelationsPrinter(config.getPackages())
-        ), config.getPackages());
+                new ClassDependenciesPrinter(classFilter),
+                new ClassRelationsPrinter(classFilter)
+        ));
     }
 
 }

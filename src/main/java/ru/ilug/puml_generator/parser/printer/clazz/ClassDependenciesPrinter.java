@@ -1,23 +1,23 @@
 package ru.ilug.puml_generator.parser.printer.clazz;
 
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
-import ru.ilug.puml_generator.config.PackagesConfig;
+import ru.ilug.puml_generator.parser.ClassFilter;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
-import ru.ilug.puml_generator.util.JavaTypesUtil;
+import ru.ilug.puml_generator.parser.printer.util.JavaTypesUtil;
 
 import java.util.Objects;
 
 @RequiredArgsConstructor
 public class ClassDependenciesPrinter implements Printer {
 
-    private final PackagesConfig packagesConfig;
+    private final ClassFilter classFilter;
 
     @Override
     public int getPosition() {
@@ -26,30 +26,30 @@ public class ClassDependenciesPrinter implements Printer {
 
     @Override
     public @Nullable String print(PrinterProperties properties) {
-        CompilationUnit unit = properties.get(CompilationUnit.class);
         TypeDeclaration<?> typeDeclaration = properties.get(TypeDeclaration.class);
 
         if (!typeDeclaration.isClassOrInterfaceDeclaration()) {
             return null;
         }
 
-        String typeName = JavaTypesUtil.getTypeDeclarationName(unit, typeDeclaration);
+        String typeName = JavaTypesUtil.getTypeDeclarationName(typeDeclaration);
 
         StringBuilder builder = new StringBuilder();
         ClassOrInterfaceDeclaration declaration = typeDeclaration.asClassOrInterfaceDeclaration();
 
-        filterAndAppendRelations(declaration.getExtendedTypes(), unit, builder, typeName, " <|-- ");
-        filterAndAppendRelations(declaration.getImplementedTypes(), unit, builder, typeName, " <|.. ");
+        filterAndAppendRelations(declaration.getExtendedTypes(), builder, typeName, " <|-- ");
+        filterAndAppendRelations(declaration.getImplementedTypes(), builder, typeName, " <|.. ");
 
         return builder.isEmpty() ? null : builder.toString();
     }
 
-    private void filterAndAppendRelations(NodeList<ClassOrInterfaceType> nodeList, CompilationUnit unit,
+    private void filterAndAppendRelations(NodeList<ClassOrInterfaceType> nodeList,
                                           StringBuilder builder, String typeName, String arrow) {
         nodeList.stream()
-                .map(t -> JavaTypesUtil.getClassOrInterfaceTypeName(unit, t))
+                .map(JavaTypesUtil::resolveReferenceType)
                 .filter(Objects::nonNull)
-                .filter(n -> JavaTypesUtil.filterPackage(n, packagesConfig))
+                .filter(classFilter::filter)
+                .map(ResolvedReferenceType::getQualifiedName)
                 .forEach(name -> builder.append("\n").append(name).append(arrow).append(typeName));
     }
 }

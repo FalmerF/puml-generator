@@ -1,22 +1,19 @@
 package ru.ilug.puml_generator.parser.printer.clazz;
 
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.resolution.SymbolResolver;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
-import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserClassDeclaration;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserInterfaceDeclaration;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
-import ru.ilug.puml_generator.config.PackagesConfig;
+import ru.ilug.puml_generator.parser.ClassFilter;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
-import ru.ilug.puml_generator.util.DependencyVisitor;
-import ru.ilug.puml_generator.util.JavaTypesUtil;
+import ru.ilug.puml_generator.parser.printer.util.DependencyVisitor;
+import ru.ilug.puml_generator.parser.printer.util.JavaTypesUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,7 +22,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ClassRelationsPrinter implements Printer {
 
-    private final PackagesConfig packagesConfig;
+    private final ClassFilter classFilter;
 
     @Override
     public int getPosition() {
@@ -41,52 +38,52 @@ public class ClassRelationsPrinter implements Printer {
             return null;
         }
 
-        String typeName = JavaTypesUtil.getTypeDeclarationName(unit, typeDeclaration);
+        String typeName = JavaTypesUtil.getTypeDeclarationName(typeDeclaration);
 
-        Set<String> dependencies = getDependencies(unit, typeDeclaration, true);
-        Set<String> relations = findAllRelations(unit);
+        Set<ResolvedReferenceType> dependencies = getDependencies(typeDeclaration);
+        Set<ResolvedReferenceType> relations = findAllRelations(unit);
 
         StringBuilder builder = new StringBuilder();
 
-        for (String relation : relations) {
-            if (dependencies.contains(relation) || relation.equals(typeName) || !JavaTypesUtil.filterPackage(relation, packagesConfig)) {
+        for (ResolvedReferenceType relation : relations) {
+            String qualifiedName = relation.getQualifiedName();
+            if (dependencies.contains(relation) || qualifiedName.equals(typeName) || !classFilter.filter(relation)) {
                 continue;
             }
 
-            builder.append("\n").append(typeName).append(" --> ").append(relation);
+            builder.append("\n").append(typeName).append(" --> ").append(relation.getQualifiedName());
         }
 
         return builder.isEmpty() ? null : builder.toString();
     }
 
-    private Set<String> getDependencies(CompilationUnit unit, TypeDeclaration<?> typeDeclaration, boolean includeInheritanceDependencies) {
+    private Set<ResolvedReferenceType> getDependencies(TypeDeclaration<?> typeDeclaration) {
         ClassOrInterfaceDeclaration declaration = typeDeclaration.asClassOrInterfaceDeclaration();
 
-        Set<String> dependencies = Stream.concat(declaration.getExtendedTypes().stream(), declaration.getImplementedTypes().stream())
-                .map(c -> JavaTypesUtil.getClassOrInterfaceTypeName(unit, c))
+        Set<ResolvedReferenceType> dependencies = Stream.concat(declaration.getExtendedTypes().stream(), declaration.getImplementedTypes().stream())
+                .map(JavaTypesUtil::resolveReferenceType)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        if (includeInheritanceDependencies) {
-            Set<String> inheritanceDependencies = findInheritanceDependencies(declaration);
-            dependencies.addAll(inheritanceDependencies);
-        }
+        Set<ResolvedReferenceType> inheritanceDependencies = findInheritanceDependencies(declaration);
+        dependencies.addAll(inheritanceDependencies);
 
         return dependencies;
     }
 
-    private Set<String> findInheritanceDependencies(ClassOrInterfaceDeclaration declaration) {
+    private Set<ResolvedReferenceType> findInheritanceDependencies(ClassOrInterfaceDeclaration declaration) {
         return Stream.concat(declaration.getExtendedTypes().stream(), declaration.getImplementedTypes().stream())
                 .map(c -> {
                     try {
-                        SymbolResolver resolver = StaticJavaParser.getParserConfiguration().getSymbolResolver().orElseThrow();
-                        ResolvedType resolvedType = resolver.toResolvedType(c, ResolvedType.class);
-                        ResolvedReferenceType resolvedReferenceType = resolvedType.asReferenceType();
-                        ResolvedReferenceTypeDeclaration resolvedTypeDeclaration = resolvedReferenceType.getTypeDeclaration().orElseThrow();
+                        ResolvedReferenceType resolvedReferenceType = JavaTypesUtil.resolveReferenceType(c);
+                        if (resolvedReferenceType != null) {
+                            ResolvedReferenceTypeDeclaration resolvedTypeDeclaration = resolvedReferenceType.getTypeDeclaration().orElseThrow();
 
-                        if (resolvedTypeDeclaration instanceof JavaParserInterfaceDeclaration declaration1) {
-                            return declaration1.getWrappedNode();
-                        } else if (resolvedTypeDeclaration instanceof JavaParserClassDeclaration declaration1) {
-                            return declaration1.getWrappedNode();
+                            if (resolvedTypeDeclaration instanceof JavaParserInterfaceDeclaration declaration1) {
+                                return declaration1.getWrappedNode();
+                            } else if (resolvedTypeDeclaration instanceof JavaParserClassDeclaration declaration1) {
+                                return declaration1.getWrappedNode();
+                            }
                         }
                     } catch (Exception ignore) {
                     }
@@ -102,15 +99,15 @@ public class ClassRelationsPrinter implements Printer {
                     }
 
                     CompilationUnit unit1 = compilationUnitOptional.get();
-                    Set<String> relations = findAllRelations(unit1);
-                    Set<String> dependencies = getDependencies(unit1, c, true);
+                    Set<ResolvedReferenceType> relations = findAllRelations(unit1);
+                    Set<ResolvedReferenceType> dependencies = getDependencies(c);
 
                     return Stream.concat(relations.stream(), dependencies.stream());
                 }).collect(Collectors.toSet());
     }
 
-    private Set<String> findAllRelations(CompilationUnit unit) {
-        Set<String> relations = new HashSet<>();
+    private Set<ResolvedReferenceType> findAllRelations(CompilationUnit unit) {
+        Set<ResolvedReferenceType> relations = new HashSet<>();
         unit.accept(new DependencyVisitor(relations), unit);
 
         return relations;

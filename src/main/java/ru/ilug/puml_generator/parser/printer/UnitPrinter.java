@@ -4,8 +4,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import ru.ilug.puml_generator.config.PackagesConfig;
-import ru.ilug.puml_generator.util.JavaTypesUtil;
+import ru.ilug.puml_generator.parser.ClassFilter;
 
 import java.util.List;
 
@@ -13,8 +12,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UnitPrinter implements Printer {
 
+    private final ClassFilter classFilter;
     private final List<Printer> classPrinters;
-    private final PackagesConfig packagesConfig;
 
     @Override
     public int getPosition() {
@@ -28,8 +27,7 @@ public class UnitPrinter implements Printer {
         StringBuilder builder = new StringBuilder();
 
         for (TypeDeclaration<?> typeDeclaration : unit.getTypes()) {
-            String typeName = JavaTypesUtil.getTypeDeclarationName(unit, typeDeclaration);
-            if (!JavaTypesUtil.filterPackage(typeName, packagesConfig)) {
+            if (!classFilter.filter(typeDeclaration)) {
                 continue;
             }
 
