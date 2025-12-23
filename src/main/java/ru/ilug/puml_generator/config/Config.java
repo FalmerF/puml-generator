@@ -28,16 +28,17 @@ public final class Config {
     private boolean staticFields = true;
 
     private boolean methods = true;
-    // TODO: Everything below requires implementation
     private boolean methodVisibility = true;
     private boolean methodType = true;
     private boolean methodName = true;
     private boolean methodArgs = true;
     private boolean methodArgsType = true;
     private boolean methodArgsName = true;
+    // TODO: Everything below requires implementation
     private boolean publicMethods = true;
     private boolean privateMethods = true;
     private boolean protectedMethods = true;
     private boolean staticMethods = true;
+    private boolean abstractMethods = true;
 
 }

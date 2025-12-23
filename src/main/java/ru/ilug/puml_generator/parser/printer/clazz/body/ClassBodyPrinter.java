@@ -14,7 +14,7 @@ import java.util.List;
 public class ClassBodyPrinter implements Printer {
 
     private final boolean fieldsEnable, publicFields, privateFields, protectedFields, staticFields;
-    private final boolean methodsEnable;
+    private final boolean methodsEnable, publicMethods, privateMethods, protectedMethods, staticMethods, abstractMethods;
     private final List<Printer> fieldsPrinters;
     private final List<Printer> methodsPrinters;
 
@@ -80,6 +80,10 @@ public class ClassBodyPrinter implements Printer {
 
             MethodDeclaration methodDeclaration = declaration.asMethodDeclaration();
 
+            if (methodDeclaration.getModifiers().stream().anyMatch(this::isMethodModifierDisallowed)) {
+                continue;
+            }
+
             builder.append("\n    {method} ");
             PrinterProperties methodProperties = new PrinterProperties(unit, typeDeclaration, methodDeclaration);
 
@@ -100,6 +104,15 @@ public class ClassBodyPrinter implements Printer {
                 || (keyword == Modifier.Keyword.PRIVATE && !privateFields)
                 || (keyword == Modifier.Keyword.PROTECTED && !protectedFields)
                 || (keyword == Modifier.Keyword.STATIC && !staticFields);
+    }
 
+    private boolean isMethodModifierDisallowed(Modifier modifier) {
+        Modifier.Keyword keyword = modifier.getKeyword();
+
+        return (keyword == Modifier.Keyword.PUBLIC && !publicMethods)
+                || (keyword == Modifier.Keyword.PRIVATE && !privateMethods)
+                || (keyword == Modifier.Keyword.PROTECTED && !protectedMethods)
+                || (keyword == Modifier.Keyword.STATIC && !staticMethods)
+                || (keyword == Modifier.Keyword.ABSTRACT && !abstractMethods);
     }
 }

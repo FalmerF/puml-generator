@@ -116,7 +116,7 @@ public class Main {
     private static ClassBodyPrinter createClassBodyPrinter(Config config) {
         return new ClassBodyPrinter(
                 config.isFields(), config.isPublicFields(), config.isPrivateFields(), config.isProtectedFields(), config.isStaticFields(),
-                config.isMethods(),
+                config.isMethods(), config.isPublicMethods(), config.isPrivateMethods(), config.isProtectedMethods(), config.isStaticMethods(), config.isAbstractMethods(),
                 createFieldPrinters(config), createMethodPrinters(config)
         );
     }
@@ -143,14 +143,34 @@ public class Main {
 
     private static List<Printer> createMethodPrinters(Config config) {
         List<Printer> printers = new ArrayList<>();
-        printers.add(new MethodVisibilityPrinter());
+
+        if (config.isMethodVisibility()) {
+            printers.add(new MethodVisibilityPrinter());
+        }
         printers.add(new MethodModifierPrinter());
-        printers.add(new MethodTypePrinter());
-        printers.add(new MethodNamePrinter());
-        printers.add(new MethodArgumentsPrinter(List.of(
-                new ParameterTypePrinter(),
-                new ParameterNamePrinter()
-        )));
+
+        if (config.isMethodType()) {
+            printers.add(new MethodTypePrinter());
+        }
+
+        if (config.isMethodName()) {
+            printers.add(new MethodNamePrinter());
+        }
+
+        List<Printer> methodArgPrinters = new ArrayList<>();
+
+        if (config.isMethodArgs()) {
+            if (config.isMethodArgsType()) {
+                methodArgPrinters.add(new ParameterTypePrinter());
+            }
+
+            if (config.isMethodArgsName()) {
+                methodArgPrinters.add(new ParameterNamePrinter());
+            }
+        }
+
+        printers.add(new MethodArgumentsPrinter(methodArgPrinters));
+
         return printers;
     }
 

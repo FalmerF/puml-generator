@@ -35,7 +35,8 @@ public class MethodArgumentsPrinter implements Printer {
                             .map(printer -> printer.print(methodProperties))
                             .filter(Objects::nonNull)
                             .collect(Collectors.joining(" "));
-                }).collect(Collectors.joining(", "));
+                }).filter(s -> !s.isBlank())
+                .collect(Collectors.joining(", "));
 
         return builder.append(result).append(")").toString();
     }

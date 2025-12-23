@@ -20,5 +20,16 @@
   "protectedFields": true,
   "staticFields": true,
 
-  "methods": true
+  "methods": true,
+  "methodVisibility": true,
+  "methodType": true,
+  "methodName": true,
+  "methodArgs": true,
+  "methodArgsType": true,
+  "methodArgsName": true,
+  "publicMethods": true,
+  "privateMethods": true,
+  "protectedMethods": true,
+  "staticMethods": true,
+  "abstractMethods": true
 }
