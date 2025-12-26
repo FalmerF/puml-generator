@@ -42,6 +42,10 @@ public class ClassBodyPrinter implements Printer {
             printMethods(unit, typeDeclaration, builder);
         }
 
+        if (builder.length() == 1) {
+            return null;
+        }
+
         return builder.append("\n}").toString();
     }
 

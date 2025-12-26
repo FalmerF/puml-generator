@@ -34,7 +34,6 @@ public final class Config {
     private boolean methodArgs = true;
     private boolean methodArgsType = true;
     private boolean methodArgsName = true;
-    // TODO: Everything below requires implementation
     private boolean publicMethods = true;
     private boolean privateMethods = true;
     private boolean protectedMethods = true;

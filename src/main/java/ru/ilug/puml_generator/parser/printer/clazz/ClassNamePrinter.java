@@ -15,7 +15,6 @@ public class ClassNamePrinter implements Printer {
     @Override
     public String print(PrinterProperties properties) {
         TypeDeclaration<?> typeDeclaration = properties.get(TypeDeclaration.class);
-
         return JavaTypesUtil.getTypeDeclarationName(typeDeclaration);
     }
 }

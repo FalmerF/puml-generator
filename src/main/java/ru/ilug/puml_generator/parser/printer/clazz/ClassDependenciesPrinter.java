@@ -25,6 +25,7 @@ public class ClassDependenciesPrinter implements Printer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public @Nullable String print(PrinterProperties properties) {
         TypeDeclaration<?> typeDeclaration = properties.get(TypeDeclaration.class);
 
@@ -32,13 +33,21 @@ public class ClassDependenciesPrinter implements Printer {
             return null;
         }
 
-        String typeName = JavaTypesUtil.getTypeDeclarationName(typeDeclaration);
+        String typeName = "\"%s\"".formatted(JavaTypesUtil.getTypeDeclarationName(typeDeclaration));
 
         StringBuilder builder = new StringBuilder();
         ClassOrInterfaceDeclaration declaration = typeDeclaration.asClassOrInterfaceDeclaration();
 
         filterAndAppendRelations(declaration.getExtendedTypes(), builder, typeName, " <|-- ");
         filterAndAppendRelations(declaration.getImplementedTypes(), builder, typeName, " <|.. ");
+
+        if (!typeDeclaration.isTopLevelType()) {
+            typeDeclaration.findAncestor(TypeDeclaration.class)
+                    .filter(classFilter::filter)
+                    .map(JavaTypesUtil::getTypeDeclarationName)
+                    .map("\"%s\""::formatted)
+                    .ifPresent(n -> builder.append("\n").append(n).append(" *-- ").append(typeName));
+        }
 
         return builder.isEmpty() ? null : builder.toString();
     }
@@ -50,6 +59,7 @@ public class ClassDependenciesPrinter implements Printer {
                 .filter(Objects::nonNull)
                 .filter(classFilter::filter)
                 .map(ResolvedReferenceType::getQualifiedName)
+                .map("\"%s\""::formatted)
                 .forEach(name -> builder.append("\n").append(name).append(arrow).append(typeName));
     }
 }

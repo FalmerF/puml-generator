@@ -51,7 +51,10 @@ public class ClassRelationsPrinter implements Printer {
                 continue;
             }
 
-            builder.append("\n").append(typeName).append(" --> ").append(relation.getQualifiedName());
+            builder.append("\n")
+                    .append("\"").append(typeName).append("\"")
+                    .append(" --> ")
+                    .append("\"").append(relation.getQualifiedName()).append("\"");
         }
 
         return builder.isEmpty() ? null : builder.toString();

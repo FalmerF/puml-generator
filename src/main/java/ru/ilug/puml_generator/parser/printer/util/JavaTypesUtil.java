@@ -5,6 +5,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.resolution.SymbolResolver;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
@@ -15,11 +16,13 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserInterfaceDeclaration;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
+
 public class JavaTypesUtil {
 
     public static String getTypeDeclarationName(TypeDeclaration<?> typeDeclaration) {
         try {
-            return typeDeclaration.resolve().getQualifiedName();
+            return getFullyQualifiedName(typeDeclaration).orElseThrow();
         } catch (Exception e) {
             if (typeDeclaration.isClassOrInterfaceDeclaration()) {
                 ClassOrInterfaceDeclaration classOrInterfaceDeclaration = typeDeclaration.asClassOrInterfaceDeclaration();
@@ -36,6 +39,20 @@ public class JavaTypesUtil {
 
             return typeDeclaration.getNameAsString();
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Optional<String> getFullyQualifiedName(TypeDeclaration<?> typeDeclaration) {
+        if (typeDeclaration.isTopLevelType()) {
+            return typeDeclaration.findCompilationUnit().map(cu -> cu.getPackageDeclaration()
+                    .map(NodeWithName::getNameAsString)
+                    .map(pkg -> pkg + "." + typeDeclaration.getNameAsString())
+                    .orElseGet(typeDeclaration::getNameAsString));
+        }
+        return typeDeclaration.findAncestor(TypeDeclaration.class)
+                .map(td -> (TypeDeclaration<?>) td)
+                .flatMap(td -> getFullyQualifiedName(td)
+                        .map(fqn -> fqn + "#" + typeDeclaration.getNameAsString()));
     }
 
     @Nullable
