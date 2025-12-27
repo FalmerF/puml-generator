@@ -1,0 +1,35 @@
+{
+  "srcPath": "./src/main/java/",
+  "outputFile": "./main.puml",
+  "dependencies": ["C:/Users/foulo/.gradle/caches/modules-2/files-2.1/com.github.javaparser/javaparser-core/3.27.1/62bb2609e872ba694c7b61aa005612dc886ec4c7/javaparser-core-3.27.1.jar"],
+  "packages": {
+    "include": ["ru.ilug"],
+    "exclude": []
+  },
+  "interfaces": true,
+  "abstractClasses": true,
+  "subClasses": true,
+  "generics": true,
+
+  "fields": true,
+  "fieldVisibility": true,
+  "fieldType": true,
+  "fieldName": true,
+  "publicFields": true,
+  "privateFields": true,
+  "protectedFields": true,
+  "staticFields": true,
+
+  "methods": true,
+  "methodVisibility": true,
+  "methodType": true,
+  "methodName": true,
+  "methodArgs": true,
+  "methodArgsType": true,
+  "methodArgsName": true,
+  "publicMethods": true,
+  "privateMethods": true,
+  "protectedMethods": true,
+  "staticMethods": true,
+  "abstractMethods": true
+}

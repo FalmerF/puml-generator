@@ -8,7 +8,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PumlGenerateController {
 
-    private final PumlGenerator generator;
+    private final CompilationUnitToPumlConverter generator;
     private final JavaSrcLoader loader;
     private final OutputSaver saver;
 
@@ -28,7 +28,7 @@ public class PumlGenerateController {
 
     private String generate(List<CompilationUnit> units) {
         try {
-            return generator.generate(units);
+            return generator.convert(units);
         } catch (Exception e) {
             throw new RuntimeException("Error on generate puml content", e);
         }

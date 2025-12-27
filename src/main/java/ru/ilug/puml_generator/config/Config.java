@@ -9,13 +9,13 @@ import java.util.regex.Pattern;
 public final class Config {
 
     private Path srcPath = Path.of("./src/main/java/");
-    private Path outputFile = Path.of("./classes.puml");
+    private Path outputFile = Path.of("./main.puml");
     private Path[] dependencies = new Path[0];
     private PackagesConfig packages = new PackagesConfig(new Pattern[0], new Pattern[0]);
 
     private boolean interfaces = true;
     private boolean abstractClasses = true;
-    private boolean subClasses = true; // TODO: Requires implementation
+    private boolean subClasses = true;
     private boolean generics = true;
 
     private boolean fields = true;
