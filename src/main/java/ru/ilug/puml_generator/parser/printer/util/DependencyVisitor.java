@@ -1,5 +1,6 @@
 package ru.ilug.puml_generator.parser.printer.util;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
@@ -18,10 +19,11 @@ import java.util.Set;
 public class DependencyVisitor extends VoidVisitorAdapter<CompilationUnit> {
 
     private final Set<ResolvedReferenceType> dependencies;
+    private final JavaParser javaParser;
 
     @Override
     public void visit(ClassOrInterfaceType classOrInterfaceType, CompilationUnit unit) {
-        ResolvedReferenceType referenceType = JavaTypesUtil.resolveReferenceType(classOrInterfaceType);
+        ResolvedReferenceType referenceType = JavaTypesUtil.resolveReferenceType(javaParser, classOrInterfaceType);
         if (referenceType != null) {
             dependencies.add(referenceType);
         }

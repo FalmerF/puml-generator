@@ -1,6 +1,6 @@
 package ru.ilug.puml_generator.parser.printer.util;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -56,9 +56,9 @@ public class JavaTypesUtil {
     }
 
     @Nullable
-    public static ResolvedReferenceType resolveReferenceType(ReferenceType referenceType) {
+    public static ResolvedReferenceType resolveReferenceType(JavaParser javaParser, ReferenceType referenceType) {
         try {
-            SymbolResolver resolver = StaticJavaParser.getParserConfiguration().getSymbolResolver().orElseThrow();
+            SymbolResolver resolver = javaParser.getParserConfiguration().getSymbolResolver().orElseThrow();
             ResolvedType resolvedType = resolver.toResolvedType(referenceType, ResolvedType.class);
             return resolvedType.asReferenceType();
         } catch (UnsolvedSymbolException | UnsupportedOperationException e) {

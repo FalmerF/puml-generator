@@ -1,8 +1,12 @@
-package ru.ilug.puml_generator.parser.printer;
+package ru.ilug.puml_generator.factory;
 
+import com.github.javaparser.JavaParser;
+import lombok.RequiredArgsConstructor;
 import ru.ilug.puml_generator.config.Config;
 import ru.ilug.puml_generator.config.PackagesConfig;
 import ru.ilug.puml_generator.parser.ClassFilter;
+import ru.ilug.puml_generator.parser.printer.Printer;
+import ru.ilug.puml_generator.parser.printer.UnitPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.*;
 import ru.ilug.puml_generator.parser.printer.clazz.body.ClassBodyPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.body.field.FieldNamePrinter;
@@ -16,9 +20,14 @@ import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.Paramet
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultPrinters {
+@RequiredArgsConstructor
+public class UnitPrinterFactory implements PrinterFactory {
 
-    public static UnitPrinter createUnitPrinter(Config config) {
+    private final Config config;
+    private final JavaParser javaParser;
+
+    @Override
+    public Printer createBasePrinter() {
         PackagesConfig packagesConfig = config.getPackages();
         ClassFilter classFilter = new ClassFilter(
                 packagesConfig.include(), packagesConfig.exclude(),
@@ -34,21 +43,21 @@ public class DefaultPrinters {
         }
 
         printers.add(createClassBodyPrinter(config));
-        printers.add(new ClassDependenciesPrinter(classFilter));
-        printers.add(new ClassRelationsPrinter(classFilter));
+        printers.add(new ClassDependenciesPrinter(classFilter, javaParser));
+        printers.add(new ClassRelationsPrinter(classFilter, javaParser));
 
         return new UnitPrinter(classFilter, printers);
     }
 
-    public static ClassBodyPrinter createClassBodyPrinter(Config config) {
+    private ClassBodyPrinter createClassBodyPrinter(Config config) {
         return new ClassBodyPrinter(
                 config.isFields(), config.isPublicFields(), config.isPrivateFields(), config.isProtectedFields(), config.isStaticFields(),
                 config.isMethods(), config.isPublicMethods(), config.isPrivateMethods(), config.isProtectedMethods(), config.isStaticMethods(), config.isAbstractMethods(),
-                createFieldPrinters(config), createMethodPrinters(config)
+                createFieldPrinters(), createMethodPrinters()
         );
     }
 
-    public static List<Printer> createFieldPrinters(Config config) {
+    private List<Printer> createFieldPrinters() {
         List<Printer> printers = new ArrayList<>();
 
         if (config.isFieldVisibility()) {
@@ -68,7 +77,7 @@ public class DefaultPrinters {
         return printers;
     }
 
-    public static List<Printer> createMethodPrinters(Config config) {
+    private List<Printer> createMethodPrinters() {
         List<Printer> printers = new ArrayList<>();
 
         if (config.isMethodVisibility()) {
@@ -100,5 +109,4 @@ public class DefaultPrinters {
 
         return printers;
     }
-
 }

@@ -1,9 +1,9 @@
 package ru.ilug.puml_generator.file_system;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.RequiredArgsConstructor;
-import ru.ilug.puml_generator.controller.JavaSrcLoader;
+import ru.ilug.puml_generator.controller.CompilationUnitLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class FileSystemJavaSrcLoader implements JavaSrcLoader {
+public class FileSystemCompilationUnitLoader implements CompilationUnitLoader {
 
     private final Path srcPath;
+    private final JavaParser javaParser;
 
     @Override
     public List<CompilationUnit> load() throws IOException {
@@ -44,7 +45,7 @@ public class FileSystemJavaSrcLoader implements JavaSrcLoader {
 
     private CompilationUnit parseFile(Path filePath) {
         try {
-            return StaticJavaParser.parse(filePath);
+            return javaParser.parse(filePath).getResult().orElse(null);
         } catch (Exception e) {
             throw new RuntimeException("Error on parse file: " + filePath.toString(), e);
         }

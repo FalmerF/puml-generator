@@ -1,5 +1,6 @@
 package ru.ilug.puml_generator.parser.printer.clazz;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
@@ -18,6 +19,7 @@ import java.util.Objects;
 public class ClassDependenciesPrinter implements Printer {
 
     private final ClassFilter classFilter;
+    private final JavaParser javaParser;
 
     @Override
     public int getPosition() {
@@ -55,7 +57,7 @@ public class ClassDependenciesPrinter implements Printer {
     private void filterAndAppendRelations(NodeList<ClassOrInterfaceType> nodeList,
                                           StringBuilder builder, String typeName, String arrow) {
         nodeList.stream()
-                .map(JavaTypesUtil::resolveReferenceType)
+                .map(c -> JavaTypesUtil.resolveReferenceType(javaParser, c))
                 .filter(Objects::nonNull)
                 .filter(classFilter::filter)
                 .map(ResolvedReferenceType::getQualifiedName)

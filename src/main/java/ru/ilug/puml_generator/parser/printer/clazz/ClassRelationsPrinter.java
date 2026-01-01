@@ -1,5 +1,6 @@
 package ru.ilug.puml_generator.parser.printer.clazz;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
 public class ClassRelationsPrinter implements Printer {
 
     private final ClassFilter classFilter;
+    private final JavaParser javaParser;
 
     @Override
     public int getPosition() {
@@ -64,7 +66,7 @@ public class ClassRelationsPrinter implements Printer {
         ClassOrInterfaceDeclaration declaration = typeDeclaration.asClassOrInterfaceDeclaration();
 
         Set<ResolvedReferenceType> dependencies = Stream.concat(declaration.getExtendedTypes().stream(), declaration.getImplementedTypes().stream())
-                .map(JavaTypesUtil::resolveReferenceType)
+                .map(c -> JavaTypesUtil.resolveReferenceType(javaParser, c))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
@@ -78,7 +80,7 @@ public class ClassRelationsPrinter implements Printer {
         return Stream.concat(declaration.getExtendedTypes().stream(), declaration.getImplementedTypes().stream())
                 .map(c -> {
                     try {
-                        ResolvedReferenceType resolvedReferenceType = JavaTypesUtil.resolveReferenceType(c);
+                        ResolvedReferenceType resolvedReferenceType = JavaTypesUtil.resolveReferenceType(javaParser, c);
                         if (resolvedReferenceType != null) {
                             ResolvedReferenceTypeDeclaration resolvedTypeDeclaration = resolvedReferenceType.getTypeDeclaration().orElseThrow();
 
@@ -111,7 +113,7 @@ public class ClassRelationsPrinter implements Printer {
 
     private Set<ResolvedReferenceType> findAllRelations(CompilationUnit unit) {
         Set<ResolvedReferenceType> relations = new HashSet<>();
-        unit.accept(new DependencyVisitor(relations), unit);
+        unit.accept(new DependencyVisitor(relations, javaParser), unit);
 
         return relations;
     }

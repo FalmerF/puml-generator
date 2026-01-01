@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class PumlGenerateController {
+public class PumlGenerator {
 
-    private final CompilationUnitToPumlConverter generator;
-    private final JavaSrcLoader loader;
+    private final CompilationUnitToPumlConverter converter;
+    private final CompilationUnitLoader loader;
     private final OutputSaver saver;
 
     public void generate() {
@@ -28,7 +28,7 @@ public class PumlGenerateController {
 
     private String generate(List<CompilationUnit> units) {
         try {
-            return generator.convert(units);
+            return converter.convert(units);
         } catch (Exception e) {
             throw new RuntimeException("Error on generate puml content", e);
         }

@@ -3,8 +3,8 @@
   "outputFile": "./main.puml",
   "dependencies": ["C:/Users/foulo/.gradle/caches/modules-2/files-2.1/com.github.javaparser/javaparser-core/3.27.1/62bb2609e872ba694c7b61aa005612dc886ec4c7/javaparser-core-3.27.1.jar"],
   "packages": {
-    "include": ["ru.ilug"],
-    "exclude": []
+    "include": ["ru\\.ilug"],
+    "exclude": ["ru\\.ilug\\.puml_generator\\.Main", "ru\\.ilug\\.puml_generator\\.factory\\."]
   },
   "interfaces": true,
   "abstractClasses": true,
