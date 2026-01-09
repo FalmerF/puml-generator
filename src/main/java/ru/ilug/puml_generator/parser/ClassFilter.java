@@ -5,16 +5,14 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 import ru.ilug.puml_generator.parser.printer.util.JavaTypesUtil;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 public class ClassFilter {
 
-    private final Pattern[] includePackages;
-    private final Pattern[] excludePackages;
+    private final String[] includePackages;
+    private final String[] excludePackages;
     private final boolean enabledInterfaces;
     private final boolean enabledAbstractClasses;
     private final boolean enabledSubClasses;
@@ -38,16 +36,14 @@ public class ClassFilter {
     }
 
     private boolean filterByPackage(String className) {
-        for (Pattern include : includePackages) {
-            Matcher matcher = include.matcher(className);
-            if (!matcher.find()) {
+        for (String includePattern : includePackages) {
+            if (!FilenameUtils.wildcardMatch(className, includePattern)) {
                 return false;
             }
         }
 
-        for (Pattern exclude : excludePackages) {
-            Matcher matcher = exclude.matcher(className);
-            if (matcher.find()) {
+        for (String excludePattern : excludePackages) {
+            if (FilenameUtils.wildcardMatch(className, excludePattern)) {
                 return false;
             }
         }
