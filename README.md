@@ -57,7 +57,7 @@ Default configuration:
 
 Packages:
 
-| Parameter | Default value | Description       |
-|-----------|---------------|-------------------|
-| include   | `empty list`  | Included packages |
-| exclude   | `empty list`  | Excluded packages |
+| Parameter | Default value | Description                                            |
+|-----------|---------------|--------------------------------------------------------|
+| include   | `empty list`  | Included packages, example: `ru.ilug.puml_generator.*` |
+| exclude   | `empty list`  | Excluded packages, example: `java.*`                   |
