@@ -6,8 +6,14 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import org.jspecify.annotations.Nullable;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
+import ru.ilug.puml_generator.parser.printer.PrinterType;
 
 public class MethodVisibilityPrinter implements Printer {
+
+    @Override
+    public String getType() {
+        return PrinterType.METHOD.name();
+    }
 
     @Override
     public int getPosition() {

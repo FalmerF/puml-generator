@@ -19,6 +19,11 @@ public class UnitPrinter implements Printer {
     private final List<Printer> classPrinters;
 
     @Override
+    public String getType() {
+        return PrinterType.BASE.name();
+    }
+
+    @Override
     public int getPosition() {
         return 0;
     }

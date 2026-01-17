@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
+import ru.ilug.puml_generator.parser.printer.PrinterType;
 
 import java.util.List;
 
@@ -19,8 +20,13 @@ public class ClassBodyPrinter implements Printer {
     private final List<Printer> methodsPrinters;
 
     @Override
+    public String getType() {
+        return PrinterType.CLASS.name();
+    }
+
+    @Override
     public int getPosition() {
-        return 200;
+        return 3000;
     }
 
     @Override

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import ru.ilug.puml_generator.config.Config;
 import ru.ilug.puml_generator.parser.ClassFilter;
 import ru.ilug.puml_generator.parser.printer.Printer;
+import ru.ilug.puml_generator.parser.printer.PrinterType;
 import ru.ilug.puml_generator.parser.printer.UnitPrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.*;
 import ru.ilug.puml_generator.parser.printer.clazz.body.ClassBodyPrinter;
@@ -16,95 +17,116 @@ import ru.ilug.puml_generator.parser.printer.clazz.body.method.*;
 import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.ParameterNamePrinter;
 import ru.ilug.puml_generator.parser.printer.clazz.body.method.parameter.ParameterTypePrinter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RequiredArgsConstructor
-public class UnitPrinterFactory implements PrinterFactory {
+public class UnitPrinterFactory implements BasePrinterFactory {
 
     private final Config config;
     private final JavaParser javaParser;
+    private final Collection<Printer> additionalPrinters = new LinkedList<>();
+    private final Map<String, List<Printer>> printersMap = new HashMap<>();
 
     @Override
-    public Printer createBasePrinter() {
+    public Printer create() {
+        printersMap.clear();
+        addPrintersToMap(additionalPrinters);
+
         ClassFilter classFilter = new ClassFilter(
                 config.getPackagesInclude(), config.getPackagesExclude(),
                 config.isInterfaces(), config.isAbstractClasses(), config.isSubClasses()
         );
+        addPrinterToMap(new ClassDependenciesPrinter(classFilter, javaParser));
+        addPrinterToMap(new ClassRelationsPrinter(classFilter, javaParser));
 
-        List<Printer> printers = new ArrayList<>();
-        printers.add(new ClassTypePrinter());
-        printers.add(new ClassNamePrinter());
+        addPrinterToMap(new ClassTypePrinter());
+        addPrinterToMap(new ClassNamePrinter());
+        addPrinterToMap(createClassBodyPrinter());
 
         if (config.isGenerics()) {
-            printers.add(new ClassGenericsPrinter());
+            addPrinterToMap(new ClassGenericsPrinter());
         }
 
-        printers.add(createClassBodyPrinter(config));
-        printers.add(new ClassDependenciesPrinter(classFilter, javaParser));
-        printers.add(new ClassRelationsPrinter(classFilter, javaParser));
-
-        return new UnitPrinter(classFilter, printers);
+        List<Printer> classPrinters = getSortedPrintersByType(PrinterType.CLASS.name());
+        return new UnitPrinter(classFilter, classPrinters);
     }
 
-    private ClassBodyPrinter createClassBodyPrinter(Config config) {
+    private void addPrintersToMap(Collection<Printer> printers) {
+        for (Printer printer : printers) {
+            addPrinterToMap(printer);
+        }
+    }
+
+    private void addPrinterToMap(Printer printer) {
+        printersMap.computeIfAbsent(printer.getType(), p -> new LinkedList<>())
+                .add(printer);
+    }
+
+    private List<Printer> getSortedPrintersByType(String type) {
+        List<Printer> printersCollection = printersMap.get(type);
+
+        if (printersCollection == null) {
+            return Collections.emptyList();
+        }
+
+        printersCollection.sort(Comparator.comparing(Printer::getPosition));
+        return printersCollection;
+    }
+
+    private Printer createClassBodyPrinter() {
+        List<Printer> fieldPrinters = createFieldPrinters();
+        List<Printer> methodPrinters = createMethodPrinters();
+
         return new ClassBodyPrinter(
                 config.isFields(), config.isPublicFields(), config.isPrivateFields(), config.isProtectedFields(), config.isStaticFields(),
                 config.isMethods(), config.isPublicMethods(), config.isPrivateMethods(), config.isProtectedMethods(), config.isStaticMethods(), config.isAbstractMethods(),
-                createFieldPrinters(), createMethodPrinters()
+                fieldPrinters, methodPrinters
         );
     }
 
     private List<Printer> createFieldPrinters() {
-        List<Printer> printers = new ArrayList<>();
-
+        addPrinterToMap(new FieldStaticModifierPrinter());
         if (config.isFieldVisibility()) {
-            printers.add(new FieldVisibilityPrinter());
+            addPrinterToMap(new FieldVisibilityPrinter());
         }
-
-        printers.add(new FieldStaticModifierPrinter());
-
         if (config.isFieldType()) {
-            printers.add(new FieldTypePrinter());
+            addPrinterToMap(new FieldTypePrinter());
         }
-
         if (config.isFieldName()) {
-            printers.add(new FieldNamePrinter());
+            addPrinterToMap(new FieldNamePrinter());
         }
-
-        return printers;
+        return getSortedPrintersByType(PrinterType.FIELD.name());
     }
 
     private List<Printer> createMethodPrinters() {
-        List<Printer> printers = new ArrayList<>();
-
+        addPrinterToMap(new MethodModifierPrinter());
         if (config.isMethodVisibility()) {
-            printers.add(new MethodVisibilityPrinter());
+            addPrinterToMap(new MethodVisibilityPrinter());
         }
-        printers.add(new MethodModifierPrinter());
-
         if (config.isMethodType()) {
-            printers.add(new MethodTypePrinter());
+            addPrinterToMap(new MethodTypePrinter());
         }
-
         if (config.isMethodName()) {
-            printers.add(new MethodNamePrinter());
+            addPrinterToMap(new MethodNamePrinter());
         }
 
-        List<Printer> methodArgPrinters = new ArrayList<>();
+        List<Printer> methodParameterPrinters = createMethodParameterPrinters();
+        addPrinterToMap(new MethodArgumentsPrinter(methodParameterPrinters));
 
+        return getSortedPrintersByType(PrinterType.METHOD.name());
+    }
+
+    private List<Printer> createMethodParameterPrinters() {
         if (config.isMethodArgs()) {
             if (config.isMethodArgsType()) {
-                methodArgPrinters.add(new ParameterTypePrinter());
+                addPrinterToMap(new ParameterTypePrinter());
             }
 
             if (config.isMethodArgsName()) {
-                methodArgPrinters.add(new ParameterNamePrinter());
+                addPrinterToMap(new ParameterNamePrinter());
             }
         }
 
-        printers.add(new MethodArgumentsPrinter(methodArgPrinters));
-
-        return printers;
+        return getSortedPrintersByType(PrinterType.METHOD_PARAMETER.name());
     }
 }

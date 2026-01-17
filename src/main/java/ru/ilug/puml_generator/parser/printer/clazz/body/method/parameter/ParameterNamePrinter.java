@@ -4,11 +4,18 @@ import com.github.javaparser.ast.body.Parameter;
 import org.jspecify.annotations.Nullable;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
+import ru.ilug.puml_generator.parser.printer.PrinterType;
 
 public class ParameterNamePrinter implements Printer {
+
+    @Override
+    public String getType() {
+        return PrinterType.METHOD_PARAMETER.name();
+    }
+
     @Override
     public int getPosition() {
-        return 0;
+        return 1000;
     }
 
     @Override

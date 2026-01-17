@@ -3,13 +3,19 @@ package ru.ilug.puml_generator.parser.printer.clazz;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
+import ru.ilug.puml_generator.parser.printer.PrinterType;
 import ru.ilug.puml_generator.parser.printer.util.JavaTypesUtil;
 
 public class ClassNamePrinter implements Printer {
 
     @Override
+    public String getType() {
+        return PrinterType.CLASS.name();
+    }
+
+    @Override
     public int getPosition() {
-        return 100;
+        return 1000;
     }
 
     @Override

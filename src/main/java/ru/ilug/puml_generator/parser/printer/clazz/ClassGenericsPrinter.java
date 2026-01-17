@@ -6,13 +6,20 @@ import com.github.javaparser.ast.type.TypeParameter;
 import org.jspecify.annotations.Nullable;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
+import ru.ilug.puml_generator.parser.printer.PrinterType;
 
 import java.util.stream.Collectors;
 
 public class ClassGenericsPrinter implements Printer {
+
+    @Override
+    public String getType() {
+        return PrinterType.CLASS.name();
+    }
+
     @Override
     public int getPosition() {
-        return 0;
+        return 2000;
     }
 
     @Override

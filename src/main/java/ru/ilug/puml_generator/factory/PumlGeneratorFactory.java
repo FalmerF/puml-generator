@@ -33,8 +33,8 @@ public class PumlGeneratorFactory {
         CompilationUnitLoader compilationUnitLoader = createCompilationUnitLoader();
         OutputSaver outputSaver = createOutputSaver();
 
-        PrinterFactory printerFactory = createPrinterFactory();
-        Printer basePrinter = printerFactory.createBasePrinter();
+        BasePrinterFactory basePrinterFactory = createPrinterFactory();
+        Printer basePrinter = basePrinterFactory.create();
         JavaUnitParser javaUnitParser = createJavaUnitParser(basePrinter);
         CompilationUnitToPumlConverter converter = createCompilationUnitToPumlConverter(javaUnitParser);
 
@@ -49,7 +49,7 @@ public class PumlGeneratorFactory {
         return new FileSystemOutputSaver(config.getOutputFile());
     }
 
-    protected PrinterFactory createPrinterFactory() {
+    protected BasePrinterFactory createPrinterFactory() {
         return new UnitPrinterFactory(config, javaParser);
     }
 

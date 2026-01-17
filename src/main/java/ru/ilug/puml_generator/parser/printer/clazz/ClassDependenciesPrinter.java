@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 import ru.ilug.puml_generator.parser.ClassFilter;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
+import ru.ilug.puml_generator.parser.printer.PrinterType;
 import ru.ilug.puml_generator.parser.printer.util.JavaTypesUtil;
 
 import java.util.Objects;
@@ -22,8 +23,13 @@ public class ClassDependenciesPrinter implements Printer {
     private final JavaParser javaParser;
 
     @Override
+    public String getType() {
+        return PrinterType.CLASS.name();
+    }
+
+    @Override
     public int getPosition() {
-        return 300;
+        return 4000;
     }
 
     @Override
