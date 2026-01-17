@@ -10,7 +10,8 @@ public final class Config {
     private Path srcPath = Path.of("./src/main/java/");
     private Path outputFile = Path.of("./main.puml");
     private Path[] dependencies = new Path[0];
-    private PackagesConfig packages = new PackagesConfig(new String[0], new String[0]);
+    private String[] packagesInclude;
+    private String[] packagesExclude;
 
     private boolean interfaces = true;
     private boolean abstractClasses = true;

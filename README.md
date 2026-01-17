@@ -29,7 +29,8 @@ Default configuration:
 | srcPath          | `./src/main/java/` | Path to java sources                                                                                                                                                                 |
 | outputFile       | `./main.puml`      | Output file                                                                                                                                                                          |
 | dependencies     | `empty list`       | A list of jar file paths that are dependencies in the source code being processed. Dependencies are optional and are only required if you want to see them on your dependency graph. |
-| packages         | `object`           | The rules that define the packages that should be showed                                                                                                                             |
+| packagesInclude  | `empty list`       | Included packages, example: `ru.ilug.puml_generator.*`                                                                                                                               |
+| packagesExclude  | `empty list`       | Excluded packages, example: `java.*`                                                                                                                                                 |
 | interfaces       | `true`             | Show interfaces                                                                                                                                                                      |
 | abstractClasses  | `true`             | Show abstract classes                                                                                                                                                                |
 | subClasses       | `true`             | Show subclasses                                                                                                                                                                      |
@@ -54,10 +55,3 @@ Default configuration:
 | protectedMethods | `true`             | Show protected methods                                                                                                                                                               |
 | staticMethods    | `true`             | Show static methods                                                                                                                                                                  |
 | abstractMethods  | `true`             | Show abstract methods                                                                                                                                                                |
-
-Packages:
-
-| Parameter | Default value | Description                                            |
-|-----------|---------------|--------------------------------------------------------|
-| include   | `empty list`  | Included packages, example: `ru.ilug.puml_generator.*` |
-| exclude   | `empty list`  | Excluded packages, example: `java.*`                   |

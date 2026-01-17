@@ -3,7 +3,6 @@ package ru.ilug.puml_generator.factory;
 import com.github.javaparser.JavaParser;
 import lombok.RequiredArgsConstructor;
 import ru.ilug.puml_generator.config.Config;
-import ru.ilug.puml_generator.config.PackagesConfig;
 import ru.ilug.puml_generator.parser.ClassFilter;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.UnitPrinter;
@@ -28,9 +27,8 @@ public class UnitPrinterFactory implements PrinterFactory {
 
     @Override
     public Printer createBasePrinter() {
-        PackagesConfig packagesConfig = config.getPackages();
         ClassFilter classFilter = new ClassFilter(
-                packagesConfig.include(), packagesConfig.exclude(),
+                config.getPackagesInclude(), config.getPackagesExclude(),
                 config.isInterfaces(), config.isAbstractClasses(), config.isSubClasses()
         );
 
