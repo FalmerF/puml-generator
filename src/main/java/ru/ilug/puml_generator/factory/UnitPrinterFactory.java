@@ -27,6 +27,14 @@ public class UnitPrinterFactory implements BasePrinterFactory {
     private final Collection<Printer> additionalPrinters = new LinkedList<>();
     private final Map<String, List<Printer>> printersMap = new HashMap<>();
 
+    public void addPrinters(Printer... printers) {
+        addPrinters(Arrays.stream(printers).toList());
+    }
+
+    public void addPrinters(Collection<Printer> printers) {
+        additionalPrinters.addAll(printers);
+    }
+
     @Override
     public Printer create() {
         printersMap.clear();
