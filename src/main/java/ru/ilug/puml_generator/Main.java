@@ -1,19 +1,9 @@
 package ru.ilug.puml_generator;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.github.javaparser.JavaParser;
 import ru.ilug.puml_generator.config.Config;
-import ru.ilug.puml_generator.controller.CompilationUnitLoader;
-import ru.ilug.puml_generator.controller.CompilationUnitToPumlConverter;
-import ru.ilug.puml_generator.controller.OutputSaver;
 import ru.ilug.puml_generator.controller.PumlGenerator;
-import ru.ilug.puml_generator.converter.CompilationUnitToPumlConverterImpl;
-import ru.ilug.puml_generator.converter.JavaUnitParser;
 import ru.ilug.puml_generator.factory.*;
-import ru.ilug.puml_generator.file_system.FileSystemCompilationUnitLoader;
-import ru.ilug.puml_generator.file_system.FileSystemOutputSaver;
-import ru.ilug.puml_generator.parser.JavaUnitParserImpl;
-import ru.ilug.puml_generator.parser.printer.Printer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,23 +18,9 @@ public class Main {
         // TODO: Move config parsing to special class
         Config config = parseArgs(args);
 
-        JavaParserFactory javaParserFactory = new JavaParserFactoryImpl(config);
-        JavaParser javaParser = javaParserFactory.create();
-
-        PumlGenerator pumlGenerator = createPumlGenerator(config, javaParser);
+        PumlGeneratorFactory pumlGeneratorFactory = new PumlGeneratorFactory(config);
+        PumlGenerator pumlGenerator = pumlGeneratorFactory.create();
         pumlGenerator.generate();
-    }
-
-    private static PumlGenerator createPumlGenerator(Config config, JavaParser javaParser) {
-        CompilationUnitLoader compilationUnitLoader = new FileSystemCompilationUnitLoader(config.getSrcPath(), javaParser);
-        OutputSaver outputSaver = new FileSystemOutputSaver(config.getOutputFile());
-
-        PrinterFactory printerFactory = new UnitPrinterFactory(config, javaParser);
-        Printer basePrinter = printerFactory.createBasePrinter();
-        JavaUnitParser javaUnitParser = new JavaUnitParserImpl(basePrinter);
-        CompilationUnitToPumlConverter converter = new CompilationUnitToPumlConverterImpl(javaUnitParser);
-
-        return new PumlGenerator(converter, compilationUnitLoader, outputSaver);
     }
 
     private static Config parseArgs(String[] args) throws IOException {
