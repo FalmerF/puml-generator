@@ -2,7 +2,7 @@ package ru.ilug.puml_generator.converter;
 
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.AllArgsConstructor;
-import ru.ilug.puml_generator.controller.CompilationUnitToPumlConverter;
+import ru.ilug.puml_generator.generator.CompilationUnitToPumlConverter;
 
 import java.util.List;
 

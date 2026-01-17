@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import ru.ilug.puml_generator.converter.JavaUnitParser;
 import ru.ilug.puml_generator.parser.printer.Printer;
 import ru.ilug.puml_generator.parser.printer.PrinterProperties;
-import ru.ilug.puml_generator.parser.printer.UnitPrinter;
 
 @RequiredArgsConstructor
 public class JavaUnitParserImpl implements JavaUnitParser {

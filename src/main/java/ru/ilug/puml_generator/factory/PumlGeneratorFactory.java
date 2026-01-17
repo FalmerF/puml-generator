@@ -2,10 +2,10 @@ package ru.ilug.puml_generator.factory;
 
 import com.github.javaparser.JavaParser;
 import ru.ilug.puml_generator.config.Config;
-import ru.ilug.puml_generator.controller.CompilationUnitLoader;
-import ru.ilug.puml_generator.controller.CompilationUnitToPumlConverter;
-import ru.ilug.puml_generator.controller.OutputSaver;
-import ru.ilug.puml_generator.controller.PumlGenerator;
+import ru.ilug.puml_generator.generator.CompilationUnitLoader;
+import ru.ilug.puml_generator.generator.CompilationUnitToPumlConverter;
+import ru.ilug.puml_generator.generator.OutputSaver;
+import ru.ilug.puml_generator.generator.PumlGenerator;
 import ru.ilug.puml_generator.converter.CompilationUnitToPumlConverterImpl;
 import ru.ilug.puml_generator.converter.JavaUnitParser;
 import ru.ilug.puml_generator.file_system.FileSystemCompilationUnitLoader;

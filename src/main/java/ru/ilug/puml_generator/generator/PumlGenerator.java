@@ -1,4 +1,4 @@
-package ru.ilug.puml_generator.controller;
+package ru.ilug.puml_generator.generator;
 
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.RequiredArgsConstructor;

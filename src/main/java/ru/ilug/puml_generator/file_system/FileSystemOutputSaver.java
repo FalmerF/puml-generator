@@ -1,7 +1,7 @@
 package ru.ilug.puml_generator.file_system;
 
 import lombok.RequiredArgsConstructor;
-import ru.ilug.puml_generator.controller.OutputSaver;
+import ru.ilug.puml_generator.generator.OutputSaver;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package ru.ilug.puml_generator.controller;
+package ru.ilug.puml_generator.generator;
 
 public interface OutputSaver {
 

@@ -3,7 +3,7 @@ package ru.ilug.puml_generator.file_system;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import lombok.RequiredArgsConstructor;
-import ru.ilug.puml_generator.controller.CompilationUnitLoader;
+import ru.ilug.puml_generator.generator.CompilationUnitLoader;
 
 import java.io.File;
 import java.io.IOException;
