@@ -17,6 +17,7 @@ public final class Config {
     private boolean abstractClasses = true;
     private boolean subClasses = true;
     private boolean generics = true;
+    private boolean javadoc = false;
 
     private boolean fields = true;
     private boolean fieldVisibility = true;

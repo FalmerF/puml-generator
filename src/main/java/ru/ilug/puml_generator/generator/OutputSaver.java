@@ -8,7 +8,6 @@ package ru.ilug.puml_generator.generator;
  * Interface implementations can support different ways of saving:
  * <lu>
  * <li>Writing to a local file</li>
- * <li>Сохранение в базу данных</li>
  * <li>Saving to the database</li>
  * <li>Output to the console or standard stream</li>
  * </lu>
