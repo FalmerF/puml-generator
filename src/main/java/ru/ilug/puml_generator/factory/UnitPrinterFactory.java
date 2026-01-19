@@ -49,11 +49,14 @@ public class UnitPrinterFactory implements BasePrinterFactory {
 
         addPrinterToMap(new ClassTypePrinter());
         addPrinterToMap(new ClassNamePrinter());
-        addPrinterToMap(new ClassJavadocPrinter());
+
         addPrinterToMap(createClassBodyPrinter());
 
         if (config.isGenerics()) {
             addPrinterToMap(new ClassGenericsPrinter());
+        }
+        if (config.isJavadoc()) {
+            addPrinterToMap(new ClassJavadocPrinter());
         }
 
         List<Printer> classPrinters = getSortedPrintersByType(PrinterType.CLASS.name());
